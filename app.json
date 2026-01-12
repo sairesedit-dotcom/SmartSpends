@@ -4,27 +4,59 @@
     "slug": "smart-spend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#6C5CE7"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smartspend.app"
+    },
     "android": {
       "package": "com.smartspend.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6C5CE7"
+      },
       "permissions": [
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
-        "android.permission.SCHEDULE_EXACT_ALARM"
-      ]
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM"
+      ],
+      "enableProguardInReleaseBuilds": true,
+      "enableShrinkResourcesInReleaseBuilds": true
+    },
+    "web": {
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
-      "expo-notifications",
-      "expo-asset"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "2a0507ca-c066-433c-ae0f-c7942d5fa58d"
-      }
-    }
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#6C5CE7",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "useLegacyPackaging": false
+          }
+        }
+      ]
+    ]
   }
 }

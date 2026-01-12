@@ -6,242 +6,315 @@ import {
   TouchableOpacity,
   ScrollView,
   StatusBar,
-  Switch,
+  TextInput,
+  Modal,
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../ThemeContext';
 
-const THEMES = {
-  purple: { primary: '#6C5CE7', name: 'Mor' },
-  blue: { primary: '#4A90E2', name: 'Mavi' },
-  green: { primary: '#2ECC71', name: 'Yeşil' },
-  orange: { primary: '#E67E22', name: 'Turuncu' },
-  pink: { primary: '#E84393', name: 'Pembe' },
-};
+const AVATARS = ['😊', '😎', '🤓', '😇', '🥳', '🤩', '😸', '🦊', '🐼', '🐨', '🦁', '🐯'];
 
 export default function ProfileScreen() {
-  const [language, setLanguage] = useState('tr');
-  const [theme, setTheme] = useState('purple');
-  const [notifications, setNotifications] = useState(true);
+  const { colors, isDark } = useTheme();
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    avatar: '😊',
+  });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [avatarModalVisible, setAvatarModalVisible] = useState(false);
 
   useEffect(() => {
-    loadSettings();
+    loadProfile();
   }, []);
 
-  const loadSettings = async () => {
+  const loadProfile = async () => {
     try {
-      const settings = await AsyncStorage.getItem('settings');
-      if (settings) {
-        const parsed = JSON.parse(settings);
-        setLanguage(parsed.language || 'tr');
-        setTheme(parsed.theme || 'purple');
-        setNotifications(parsed.notifications !== false);
+      const profileData = await AsyncStorage.getItem('profile');
+      if (profileData) {
+        setProfile(JSON.parse(profileData));
       }
     } catch (error) {
-      console.error('Ayarlar yüklenirken hata:', error);
+      console.error('Profil yüklenirken hata:', error);
     }
   };
 
-  const saveSettings = async (key, value) => {
+  const saveProfile = async (newProfile) => {
     try {
-      const settings = await AsyncStorage.getItem('settings');
-      const current = settings ? JSON.parse(settings) : {};
-      current[key] = value;
-      await AsyncStorage.setItem('settings', JSON.stringify(current));
+      await AsyncStorage.setItem('profile', JSON.stringify(newProfile));
+      setProfile(newProfile);
     } catch (error) {
-      console.error('Ayarlar kaydedilirken hata:', error);
+      console.error('Profil kaydedilirken hata:', error);
     }
   };
 
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-    saveSettings('language', lang);
-    Alert.alert(
-      lang === 'tr' ? 'Dil Değiştirildi' : 'Language Changed',
-      lang === 'tr' ? 'Türkçe olarak ayarlandı' : 'Set to English'
-    );
+  const updateProfile = () => {
+    if (!profile.name.trim()) {
+      Alert.alert('Uyarı', 'Lütfen isim girin!');
+      return;
+    }
+    saveProfile(profile);
+    setModalVisible(false);
+    Alert.alert('Başarılı', 'Profil güncellendi!');
   };
 
-  const changeTheme = (themeName) => {
-    setTheme(themeName);
-    saveSettings('theme', themeName);
-  };
+  const sendSummaryEmail = async () => {
+    if (!profile.email) {
+      Alert.alert('Uyarı', 'Lütfen önce e-posta adresinizi girin!');
+      return;
+    }
 
-  const toggleNotifications = (value) => {
-    setNotifications(value);
-    saveSettings('notifications', value);
-  };
+    try {
+      // Verileri topla
+      const expenses = await AsyncStorage.getItem('expenses');
+      const budget = await AsyncStorage.getItem('budget');
+      const reminders = await AsyncStorage.getItem('reminders');
 
-  const clearAllData = () => {
-    Alert.alert(
-      language === 'tr' ? 'Tüm Verileri Sil' : 'Clear All Data',
-      language === 'tr'
-        ? 'Tüm harcamalar, bütçe ve hatırlatıcılar silinecek. Emin misiniz?'
-        : 'All expenses, budget, and reminders will be deleted. Are you sure?',
-      [
-        { text: language === 'tr' ? 'İptal' : 'Cancel', style: 'cancel' },
-        {
-          text: language === 'tr' ? 'Sil' : 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await AsyncStorage.multiRemove(['expenses', 'budget', 'reminders']);
-            Alert.alert(
-              language === 'tr' ? 'Başarılı' : 'Success',
-              language === 'tr' ? 'Tüm veriler silindi' : 'All data cleared'
-            );
+      const expensesData = expenses ? JSON.parse(expenses) : [];
+      const budgetData = budget ? JSON.parse(budget) : { monthly: 0, spent: 0 };
+      const remindersData = reminders ? JSON.parse(reminders) : [];
+
+      const totalExpense = expensesData.reduce((sum, e) => sum + e.amount, 0);
+      const remaining = budgetData.monthly - budgetData.spent;
+
+      const summary = `
+📊 Smart Spend - Hesap Özeti
+━━━━━━━━━━━━━━━━━━━━━━━━
+👤 ${profile.name}
+📅 ${new Date().toLocaleDateString('tr-TR')}
+
+💰 BÜTÇE
+Aylık Bütçe: ₺${budgetData.monthly.toFixed(2)}
+Harcanan: ₺${budgetData.spent.toFixed(2)}
+Kalan: ₺${remaining.toFixed(2)}
+
+📝 HARCAMALAR
+Toplam: ₺${totalExpense.toFixed(2)}
+Kayıt: ${expensesData.length} adet
+
+🔔 HATIRLATICILAR
+Aktif: ${remindersData.length} adet
+Aylık Toplam: ₺${remindersData.reduce((sum, r) => sum + r.amount, 0).toFixed(2)}
+      `;
+
+      // Email gönderme simülasyonu (gerçek uygulamada backend'e istek atılmalı)
+      Alert.alert(
+        '📧 Özet Hazır',
+        `E-posta ${profile.email} adresine gönderilecek:\n\n${summary}`,
+        [
+          { text: 'İptal', style: 'cancel' },
+          {
+            text: 'Gönder',
+            onPress: () => {
+              // Burada gerçek email API'si kullanılabilir
+              Alert.alert('✅ Başarılı', 'Özet e-postanıza gönderildi!');
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    } catch (error) {
+      console.error('Özet oluşturulurken hata:', error);
+      Alert.alert('Hata', 'Özet oluşturulamadı!');
+    }
   };
-
-  const texts = {
-    tr: {
-      title: 'Profil',
-      subtitle: 'Ayarlar ve Kişiselleştirme',
-      language: 'Dil',
-      theme: 'Tema Rengi',
-      notifications: 'Bildirimler',
-      data: 'Veri Yönetimi',
-      clearData: 'Tüm Verileri Sil',
-      version: 'Versiyon',
-    },
-    en: {
-      title: 'Profile',
-      subtitle: 'Settings and Customization',
-      language: 'Language',
-      theme: 'Theme Color',
-      notifications: 'Notifications',
-      data: 'Data Management',
-      clearData: 'Clear All Data',
-      version: 'Version',
-    },
-  };
-
-  const t = texts[language];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t.title}</Text>
-        <Text style={styles.headerSubtitle}>{t.subtitle}</Text>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Profil</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+          Hesap Bilgileri
+        </Text>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {/* Language Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="language" size={20} color="#333" /> {t.language}
-          </Text>
-          <View style={styles.optionsRow}>
-            <TouchableOpacity
-              style={[
-                styles.languageButton,
-                language === 'tr' && { backgroundColor: THEMES[theme].primary },
-              ]}
-              onPress={() => changeLanguage('tr')}
-            >
-              <Text
-                style={[
-                  styles.languageButtonText,
-                  language === 'tr' && { color: '#fff' },
-                ]}
-              >
-                🇹🇷 Türkçe
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.languageButton,
-                language === 'en' && { backgroundColor: THEMES[theme].primary },
-              ]}
-              onPress={() => changeLanguage('en')}
-            >
-              <Text
-                style={[
-                  styles.languageButtonText,
-                  language === 'en' && { color: '#fff' },
-                ]}
-              >
-                🇬🇧 English
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Theme Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="color-palette" size={20} color="#333" /> {t.theme}
-          </Text>
-          <View style={styles.themeGrid}>
-            {Object.keys(THEMES).map((themeName) => (
-              <TouchableOpacity
-                key={themeName}
-                style={[
-                  styles.themeButton,
-                  { backgroundColor: THEMES[themeName].primary },
-                  theme === themeName && styles.themeButtonSelected,
-                ]}
-                onPress={() => changeTheme(themeName)}
-              >
-                {theme === themeName && (
-                  <Ionicons name="checkmark" size={24} color="#fff" />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-          <View style={styles.themeNames}>
-            {Object.keys(THEMES).map((themeName) => (
-              <Text key={themeName} style={styles.themeName}>
-                {THEMES[themeName].name}
-              </Text>
-            ))}
-          </View>
-        </View>
-
-        {/* Notifications Section */}
-        <View style={styles.section}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingLeft}>
-              <Ionicons name="notifications" size={24} color="#333" />
-              <Text style={styles.settingText}>{t.notifications}</Text>
+        {/* Profile Card */}
+        <View style={[styles.profileCard, { backgroundColor: colors.card }]}>
+          <TouchableOpacity
+            style={[styles.avatarContainer, { backgroundColor: colors.light }]}
+            onPress={() => setAvatarModalVisible(true)}
+          >
+            <Text style={styles.avatar}>{profile.avatar}</Text>
+            <View style={[styles.editBadge, { backgroundColor: colors.primary }]}>
+              <Ionicons name="pencil" size={12} color="#fff" />
             </View>
-            <Switch
-              value={notifications}
-              onValueChange={toggleNotifications}
-              trackColor={{ false: '#DDD', true: THEMES[theme].primary }}
-              thumbColor="#fff"
-            />
-          </View>
-        </View>
+          </TouchableOpacity>
 
-        {/* Data Management */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="server" size={20} color="#333" /> {t.data}
+          <Text style={[styles.profileName, { color: colors.text }]}>
+            {profile.name || 'İsim belirtilmemiş'}
           </Text>
-          <TouchableOpacity style={styles.dangerButton} onPress={clearAllData}>
-            <Ionicons name="trash" size={20} color="#FF6B6B" />
-            <Text style={styles.dangerButtonText}>{t.clearData}</Text>
+          <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
+            {profile.email || 'E-posta eklenmemiş'}
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.editButton, { backgroundColor: colors.light }]}
+            onPress={() => setModalVisible(true)}
+          >
+            <Ionicons name="create-outline" size={18} color={colors.primary} />
+            <Text style={[styles.editButtonText, { color: colors.primary }]}>
+              Profili Düzenle
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* App Info */}
-        <View style={styles.section}>
-          <View style={styles.infoRow}>
-            <Ionicons name="information-circle" size={20} color="#888" />
-            <Text style={styles.infoText}>{t.version}: 1.0.0</Text>
+        {/* Actions */}
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Ionicons name="analytics" size={20} color={colors.text} /> İşlemler
+          </Text>
+
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: colors.light }]}
+            onPress={sendSummaryEmail}
+          >
+            <View style={styles.actionLeft}>
+              <Ionicons name="mail" size={24} color={colors.primary} />
+              <View style={styles.actionText}>
+                <Text style={[styles.actionTitle, { color: colors.text }]}>
+                  Özet Gönder
+                </Text>
+                <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
+                  Hesap özetini e-postana gönder
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Stats */}
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            <Ionicons name="stats-chart" size={20} color={colors.text} /> İstatistikler
+          </Text>
+
+          <View style={styles.statsGrid}>
+            <View style={[styles.statCard, { backgroundColor: colors.light }]}>
+              <Ionicons name="wallet" size={28} color={colors.primary} />
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {profile.expenseCount || 0}
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                Harcama
+              </Text>
+            </View>
+
+            <View style={[styles.statCard, { backgroundColor: colors.light }]}>
+              <Ionicons name="cash" size={28} color={colors.success} />
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {profile.budgetCount || 0}
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                Gelir Kaydı
+              </Text>
+            </View>
+
+            <View style={[styles.statCard, { backgroundColor: colors.light }]}>
+              <Ionicons name="notifications" size={28} color={colors.warning} />
+              <Text style={[styles.statValue, { color: colors.text }]}>
+                {profile.reminderCount || 0}
+              </Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+                Hatırlatıcı
+              </Text>
+            </View>
           </View>
-          <Text style={styles.copyright}>© 2025 Smart Spend</Text>
         </View>
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Profili Düzenle
+              </Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={28} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>İsim</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
+                placeholder="İsminizi girin"
+                placeholderTextColor={colors.textSecondary}
+                value={profile.name}
+                onChangeText={(text) => setProfile({ ...profile, name: text })}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>E-posta</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
+                placeholder="ornek@email.com"
+                placeholderTextColor={colors.textSecondary}
+                keyboardType="email-address"
+                value={profile.email}
+                onChangeText={(text) => setProfile({ ...profile, email: text })}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.primary }]}
+              onPress={updateProfile}
+            >
+              <Text style={styles.saveButtonText}>Kaydet</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Avatar Picker Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={avatarModalVisible}
+        onRequestClose={() => setAvatarModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={[styles.avatarModalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Avatar Seç</Text>
+            <View style={styles.avatarGrid}>
+              {AVATARS.map((emoji) => (
+                <TouchableOpacity
+                  key={emoji}
+                  style={[
+                    styles.avatarOption,
+                    { backgroundColor: colors.light },
+                    profile.avatar === emoji && {
+                      borderColor: colors.primary,
+                      borderWidth: 3,
+                    },
+                  ]}
+                  onPress={() => {
+                    setProfile({ ...profile, avatar: emoji });
+                    saveProfile({ ...profile, avatar: emoji });
+                    setAvatarModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.avatarEmoji}>{emoji}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -249,7 +322,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
   },
   scrollView: {
     flex: 1,
@@ -258,123 +330,183 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#888',
     marginTop: 4,
   },
+  profileCard: {
+    margin: 20,
+    padding: 30,
+    borderRadius: 20,
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  avatar: {
+    fontSize: 50,
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#fff',
+  },
+  profileName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    marginBottom: 20,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+  },
+  editButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   section: {
-    backgroundColor: '#fff',
     marginHorizontal: 20,
-    marginTop: 20,
+    marginBottom: 20,
     padding: 20,
     borderRadius: 16,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 16,
   },
-  optionsRow: {
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+  },
+  actionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  actionText: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  actionSubtitle: {
+    fontSize: 13,
+  },
+  statsGrid: {
     flexDirection: 'row',
     gap: 12,
   },
-  languageButton: {
+  statCard: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#F8F9FA',
     borderRadius: 12,
     alignItems: 'center',
   },
-  languageButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#333',
+  statValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 8,
   },
-  themeGrid: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  themeButton: {
-    flex: 1,
-    height: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  themeButtonSelected: {
-    borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  themeNames: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  themeName: {
-    flex: 1,
+  statLabel: {
     fontSize: 12,
-    color: '#888',
-    textAlign: 'center',
+    marginTop: 4,
   },
-  settingRow: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  avatarModalContent: {
+    margin: 20,
+    borderRadius: 24,
+    padding: 24,
+  },
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 24,
   },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
-  settingText: {
-    fontSize: 16,
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    marginBottom: 8,
   },
-  dangerButton: {
+  input: {
+    padding: 16,
+    borderRadius: 12,
+    fontSize: 16,
+  },
+  saveButton: {
+    padding: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  avatarGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 16,
+  },
+  avatarOption: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-    backgroundColor: '#FFF5F5',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#FFE5E5',
   },
-  dangerButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#FF6B6B',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#888',
-  },
-  copyright: {
-    fontSize: 12,
-    color: '#CCC',
-    textAlign: 'center',
-    marginTop: 8,
+  avatarEmoji: {
+    fontSize: 32,
   },
 });

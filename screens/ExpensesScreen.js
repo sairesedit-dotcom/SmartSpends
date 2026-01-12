@@ -16,6 +16,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { PieChart } from 'react-native-chart-kit';
+import { useTheme } from '../ThemeContext';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -29,6 +30,7 @@ const CATEGORIES = [
 ];
 
 export default function ExpensesScreen() {
+  const { colors, isDark } = useTheme();
   const [expenses, setExpenses] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
@@ -194,30 +196,30 @@ export default function ExpensesScreen() {
   const totalExpense = getTotalExpense();
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Harcamalar</Text>
-        <Text style={styles.headerSubtitle}>Harcama Takip</Text>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Harcamalar</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Harcama Takip</Text>
       </View>
 
       <ScrollView style={styles.scrollView}>
-        <View style={styles.totalCard}>
+        <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
           <Text style={styles.totalLabel}>Toplam Harcama</Text>
           <Text style={styles.totalAmount}>₺{totalExpense.toFixed(2)}</Text>
           <Text style={styles.totalCount}>{expenses.length} harcama</Text>
         </View>
 
         {expenses.length > 0 && (
-          <View style={styles.chartContainer}>
+          <View style={[styles.chartContainer, { backgroundColor: colors.card }]}>
             <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>Kategori Dağılımı</Text>
+              <Text style={[styles.chartTitle, { color: colors.text }]}>Kategori Dağılımı</Text>
               <TouchableOpacity onPress={() => setShowChart(!showChart)}>
                 <Ionicons 
                   name={showChart ? 'chevron-up' : 'chevron-down'} 
                   size={24} 
-                  color="#333" 
+                  color={colors.text} 
                 />
               </TouchableOpacity>
             </View>
@@ -244,11 +246,11 @@ export default function ExpensesScreen() {
                         <View 
                           style={[styles.colorDot, { backgroundColor: item.color }]} 
                         />
-                        <Text style={styles.summaryName}>{item.name}</Text>
+                        <Text style={[styles.summaryName, { color: colors.text }]}>{item.name}</Text>
                       </View>
                       <View style={styles.summaryRight}>
-                        <Text style={styles.summaryPercentage}>%{item.percentage}</Text>
-                        <Text style={styles.summaryAmount}>₺{item.amount.toFixed(2)}</Text>
+                        <Text style={[styles.summaryPercentage, { color: colors.primary }]}>%{item.percentage}</Text>
+                        <Text style={[styles.summaryAmount, { color: colors.text }]}>₺{item.amount.toFixed(2)}</Text>
                       </View>
                     </View>
                   ))}
@@ -279,7 +281,7 @@ export default function ExpensesScreen() {
       </ScrollView>
 
       <TouchableOpacity
-        style={styles.addButton}
+        style={[styles.addButton, { backgroundColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
       >
         <Ionicons name="add" size={32} color="#fff" />

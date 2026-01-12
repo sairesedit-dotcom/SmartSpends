@@ -14,10 +14,12 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { PieChart } from 'react-native-chart-kit';
+import { useTheme } from '../ThemeContext';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function BudgetScreen() {
+  const { colors, isDark } = useTheme();
   const [budget, setBudget] = useState({
     monthly: 0,
     spent: 0,
@@ -155,17 +157,17 @@ export default function BudgetScreen() {
   const budgetChartData = getBudgetChartData();
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Bütçe</Text>
-        <Text style={styles.headerSubtitle}>Gelir ve Gider Takibi</Text>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Bütçe</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Gelir ve Gider Takibi</Text>
       </View>
 
       <ScrollView style={styles.scrollView}>
         {/* Budget Overview */}
-        <View style={styles.budgetCard}>
+        <View style={[styles.budgetCard, { backgroundColor: colors.primary }]}>
           <View style={styles.budgetHeader}>
             <Text style={styles.budgetLabel}>Aylık Bütçe</Text>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -210,14 +212,14 @@ export default function BudgetScreen() {
 
         {/* Budget Chart */}
         {budget.monthly > 0 && budgetChartData.length > 0 && (
-          <View style={styles.chartContainer}>
+          <View style={[styles.chartContainer, { backgroundColor: colors.card }]}>
             <View style={styles.chartHeader}>
-              <Text style={styles.chartTitle}>Bütçe Dağılımı</Text>
+              <Text style={[styles.chartTitle, { color: colors.text }]}>Bütçe Dağılımı</Text>
               <TouchableOpacity onPress={() => setShowBudgetChart(!showBudgetChart)}>
                 <Ionicons 
                   name={showBudgetChart ? 'chevron-up' : 'chevron-down'} 
                   size={24} 
-                  color="#333" 
+                  color={colors.text} 
                 />
               </TouchableOpacity>
             </View>
@@ -259,15 +261,15 @@ export default function BudgetScreen() {
         )}
 
         {/* Incomes Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Gelirler</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Gelirler</Text>
             <TouchableOpacity 
-              style={styles.addIncomeButton}
+              style={[styles.addIncomeButton, { backgroundColor: colors.light }]}
               onPress={() => setIncomeModalVisible(true)}
             >
-              <Ionicons name="add" size={20} color="#6C5CE7" />
-              <Text style={styles.addIncomeText}>Gelir Ekle</Text>
+              <Ionicons name="add" size={20} color={colors.primary} />
+              <Text style={[styles.addIncomeText, { color: colors.primary }]}>Gelir Ekle</Text>
             </TouchableOpacity>
           </View>
 

@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import { useTheme } from '../ThemeContext';
 
 // Bildirim davranışını ayarla
 Notifications.setNotificationHandler({
@@ -40,6 +41,7 @@ const SUBSCRIPTION_SERVICES = {
 };
 
 export default function RemindersScreen() {
+  const { colors, isDark } = useTheme();
   const [reminders, setReminders] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [name, setName] = useState('');
@@ -239,17 +241,17 @@ export default function RemindersScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Hatırlatıcılar</Text>
-        <Text style={styles.headerSubtitle}>Düzenli Ödeme Takibi</Text>
+      <View style={[styles.header, { backgroundColor: colors.card }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Hatırlatıcılar</Text>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>Düzenli Ödeme Takibi</Text>
       </View>
 
       <ScrollView style={styles.scrollView}>
         {/* Total Card */}
-        <View style={styles.totalCard}>
+        <View style={[styles.totalCard, { backgroundColor: colors.danger }]}>
           <Text style={styles.totalLabel}>Aylık Toplam Ödeme</Text>
           <Text style={styles.totalAmount}>₺{getTotalMonthlyPayments().toFixed(2)}</Text>
           <Text style={styles.totalCount}>{reminders.length} hatırlatıcı</Text>
@@ -307,7 +309,7 @@ export default function RemindersScreen() {
 
       {/* Add Button */}
       <TouchableOpacity
-        style={styles.addButton}
+        style={[styles.addButton, { backgroundColor: colors.primary }]}
         onPress={() => setModalVisible(true)}
       >
         <Ionicons name="add" size={32} color="#fff" />
