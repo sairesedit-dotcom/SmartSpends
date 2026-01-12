@@ -91,7 +91,7 @@ export const ThemeProvider = ({ children }) => {
     // Dark/Light mode renkleri
     background: isDark ? '#1a1a1a' : '#F8F9FA',
     card: isDark ? '#2a2a2a' : '#fff',
-    text: isDark ? '#fff' : '#333',
+    text: isDark ? '#ffffff' : '#333',
     textSecondary: isDark ? '#aaa' : '#888',
     textTertiary: isDark ? '#666' : '#CCC',
     border: isDark ? '#3a3a3a' : '#F0F0F0',
