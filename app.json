@@ -51,12 +51,17 @@
         "expo-build-properties",
         {
           "android": {
-            "enableProguardInReleaseBuilds": true,
-            "enableShrinkResourcesInReleaseBuilds": true,
-            "useLegacyPackaging": false
+            "useLegacyPackaging": false,
+            "enableMinifyInReleaseBuilds": true
           }
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "82fc36a7-ed47-4ae4-a9af-9c3694efd17a"
+      }
+    },
+    "owner": "hazretiyuzarsif"
   }
 }
