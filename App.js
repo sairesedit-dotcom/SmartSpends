@@ -3,6 +3,7 @@ import { View, StyleSheet, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaProvider } from 'react-native-safe-area-context'; // Bunu ekledik
 import { ThemeProvider, useTheme } from './ThemeContext';
 import ExpensesScreen from './screens/ExpensesScreen';
 import BudgetScreen from './screens/BudgetScreen';
@@ -124,7 +125,6 @@ function AppNavigator() {
         </Tab.Navigator>
       </NavigationContainer>
     </View>
-    </SafeAreaView>
   );
 }
 
