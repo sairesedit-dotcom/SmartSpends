@@ -124,14 +124,17 @@ function AppNavigator() {
         </Tab.Navigator>
       </NavigationContainer>
     </View>
+    </SafeAreaView>
   );
 }
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AppNavigator />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <AppNavigator />
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
