@@ -246,11 +246,11 @@ export default function BudgetScreen() {
                         <View 
                           style={[styles.colorDot, { backgroundColor: item.color }]} 
                         />
-                        <Text style={styles.summaryName}>{item.name}</Text>
+                        <Text style={[styles.summaryName, { color: colors.text }]}>{item.name}</Text>
                       </View>
                       <View style={styles.summaryRight}>
-                        <Text style={styles.summaryPercentage}>%{item.percentage}</Text>
-                        <Text style={styles.summaryAmount}>₺{item.amount.toFixed(2)}</Text>
+                        <Text style={[styles.summaryPercentage, { color: colors.primary }]}>%{item.percentage}</Text>
+                        <Text style={[styles.summaryAmount, { color: colors.text }]}>₺{item.amount.toFixed(2)}</Text>
                       </View>
                     </View>
                   ))}
@@ -275,16 +275,16 @@ export default function BudgetScreen() {
 
           {budget.incomes && budget.incomes.length > 0 ? (
             budget.incomes.map((income) => (
-              <View key={income.id} style={styles.incomeItem}>
-                <View style={styles.incomeIcon}>
-                  <Ionicons name="cash" size={24} color="#4ECDC4" />
+              <View key={income.id} style={[styles.incomeItem, { backgroundColor: colors.input }]}>
+                <View style={[styles.incomeIcon, { backgroundColor: colors.light }]}>
+                  <Ionicons name="cash" size={24} color={colors.success} />
                 </View>
                 <View style={styles.incomeDetails}>
-                  <Text style={styles.incomeName}>{income.name}</Text>
-                  <Text style={styles.incomeDate}>Tarih: {income.date}</Text>
+                  <Text style={[styles.incomeName, { color: colors.text }]}>{income.name}</Text>
+                  <Text style={[styles.incomeDate, { color: colors.textSecondary }]}>Tarih: {income.date}</Text>
                 </View>
                 <View style={styles.incomeRight}>
-                  <Text style={styles.incomeAmount}>+₺{income.amount.toFixed(2)}</Text>
+                  <Text style={[styles.incomeAmount, { color: colors.success }]}>+₺{income.amount.toFixed(2)}</Text>
                   <TouchableOpacity onPress={() => deleteIncome(income.id)}>
                     <Ionicons name="trash-outline" size={18} color="#FF6B6B" />
                   </TouchableOpacity>
@@ -293,8 +293,8 @@ export default function BudgetScreen() {
             ))
           ) : (
             <View style={styles.emptyContainer}>
-              <Ionicons name="cash-outline" size={60} color="#DDD" />
-              <Text style={styles.emptyText}>Henüz gelir eklenmemiş</Text>
+              <Ionicons name="cash-outline" size={60} color={colors.textTertiary} />
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Henüz gelir eklenmemiş</Text>
             </View>
           )}
         </View>
@@ -310,26 +310,27 @@ export default function BudgetScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Aylık Bütçe Belirle</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Aylık Bütçe Belirle</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Aylık Bütçe (₺)</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Aylık Bütçe (₺)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="decimal-pad"
                 value={monthlyBudget}
                 onChangeText={setMonthlyBudget}
               />
             </View>
 
-            <TouchableOpacity style={styles.saveButton} onPress={updateMonthlyBudget}>
+            <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primary }]} onPress={updateMonthlyBudget}>
               <Text style={styles.saveButtonText}>Kaydet</Text>
             </TouchableOpacity>
           </View>
@@ -344,29 +345,31 @@ export default function BudgetScreen() {
         onRequestClose={() => setIncomeModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Gelir Ekle</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Gelir Ekle</Text>
               <TouchableOpacity onPress={() => setIncomeModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Gelir Adı</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Gelir Adı</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="Örn: Burs, Harçlık, Maaş"
+                placeholderTextColor={colors.textSecondary}
                 value={incomeName}
                 onChangeText={setIncomeName}
               />
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Miktar (₺)</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Miktar (₺)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="decimal-pad"
                 value={incomeAmount}
                 onChangeText={setIncomeAmount}
@@ -374,16 +377,17 @@ export default function BudgetScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Alınma Tarihi</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Alınma Tarihi</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="Örn: Her ayın 1'i, 15 Ocak"
+                placeholderTextColor={colors.textSecondary}
                 value={incomeDate}
                 onChangeText={setIncomeDate}
               />
             </View>
 
-            <TouchableOpacity style={styles.saveButton} onPress={addIncome}>
+            <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primary }]} onPress={addIncome}>
               <Text style={styles.saveButtonText}>Kaydet</Text>
             </TouchableOpacity>
           </View>

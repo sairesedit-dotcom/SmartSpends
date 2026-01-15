@@ -171,19 +171,19 @@ export default function ExpensesScreen() {
     const category = CATEGORIES.find((c) => c.id === item.category);
 
     return (
-      <View key={item.id} style={styles.expenseItem}>
+      <View key={item.id} style={[styles.expenseItem, { backgroundColor: colors.card }]}>
         <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
           <Ionicons name={category.icon} size={24} color="#fff" />
         </View>
 
         <View style={styles.expenseDetails}>
-          <Text style={styles.categoryName}>{category.name}</Text>
-          {item.note ? <Text style={styles.noteText}>{item.note}</Text> : null}
-          <Text style={styles.dateText}>{formatDate(item.date)}</Text>
+          <Text style={[styles.categoryName, { color: colors.text }]}>{category.name}</Text>
+          {item.note ? <Text style={[styles.noteText, { color: colors.textSecondary }]}>{item.note}</Text> : null}
+          <Text style={[styles.dateText, { color: colors.textTertiary }]}>{formatDate(item.date)}</Text>
         </View>
 
         <View style={styles.expenseRight}>
-          <Text style={styles.amountText}>₺{item.amount.toFixed(2)}</Text>
+          <Text style={[styles.amountText, { color: colors.text }]}>₺{item.amount.toFixed(2)}</Text>
           <TouchableOpacity onPress={() => deleteExpense(item.id)}>
             <Ionicons name="trash-outline" size={20} color="#FF6B6B" />
           </TouchableOpacity>
@@ -262,15 +262,15 @@ export default function ExpensesScreen() {
 
         {expenses.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="wallet-outline" size={80} color="#DDD" />
-            <Text style={styles.emptyText}>Henüz harcama eklenmemiş</Text>
-            <Text style={styles.emptySubtext}>
+            <Ionicons name="wallet-outline" size={80} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Henüz harcama eklenmemiş</Text>
+            <Text style={[styles.emptySubtext, { color: colors.textTertiary }]}>
               Harcama eklemek için + butonuna tıklayın
             </Text>
           </View>
         ) : (
           <>
-            <Text style={styles.listTitle}>Son Harcamalar</Text>
+            <Text style={[styles.listTitle, { color: colors.text }]}>Son Harcamalar</Text>
             <View style={styles.expensesList}>
               {expenses.map((item) => renderExpenseItem(item))}
             </View>
@@ -297,19 +297,20 @@ export default function ExpensesScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalContainer}
         >
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Yeni Harcama</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Yeni Harcama</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Miktar (₺)</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Miktar (₺)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="0.00"
+                placeholderTextColor={colors.textSecondary}
                 keyboardType="decimal-pad"
                 value={amount}
                 onChangeText={setAmount}
@@ -317,13 +318,14 @@ export default function ExpensesScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Kategori</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Kategori</Text>
               <View style={styles.categoriesContainer}>
                 {CATEGORIES.map((category) => (
                   <TouchableOpacity
                     key={category.id}
                     style={[
                       styles.categoryButton,
+                      { backgroundColor: colors.input },
                       selectedCategory === category.id && {
                         backgroundColor: category.color,
                       },
@@ -338,7 +340,7 @@ export default function ExpensesScreen() {
                     <Text
                       style={[
                         styles.categoryButtonText,
-                        selectedCategory === category.id && { color: '#fff' },
+                        { color: selectedCategory === category.id ? '#fff' : colors.text },
                       ]}
                     >
                       {category.name}
@@ -349,16 +351,17 @@ export default function ExpensesScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Not (Opsiyonel)</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>Not (Opsiyonel)</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                 placeholder="Açıklama ekleyin..."
+                placeholderTextColor={colors.textSecondary}
                 value={note}
                 onChangeText={setNote}
               />
             </View>
 
-            <TouchableOpacity style={styles.saveButton} onPress={addExpense}>
+            <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primary }]} onPress={addExpense}>
               <Text style={styles.saveButtonText}>Kaydet</Text>
             </TouchableOpacity>
           </View>
@@ -484,7 +487,6 @@ const styles = StyleSheet.create({
   expenseItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,

@@ -260,39 +260,39 @@ export default function RemindersScreen() {
         {/* Reminders List */}
         {reminders.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="notifications-outline" size={80} color="#DDD" />
-            <Text style={styles.emptyText}>Henüz hatırlatıcı eklenmemiş</Text>
-            <Text style={styles.emptySubtext}>
+            <Ionicons name="notifications-outline" size={80} color={colors.textTertiary} />
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Henüz hatırlatıcı eklenmemiş</Text>
+            <Text style={[styles.emptySubtext, { color: colors.textTertiary }]}>
               + butonuna tıklayarak hatırlatıcı ekleyin
             </Text>
           </View>
         ) : (
           <View style={styles.remindersList}>
             {reminders.map((reminder) => (
-              <View key={reminder.id} style={styles.reminderItem}>
-                <View style={styles.reminderIcon}>
+              <View key={reminder.id} style={[styles.reminderItem, { backgroundColor: colors.card }]}>
+                <View style={[styles.reminderIcon, { backgroundColor: colors.light }]}>
                   <Ionicons 
                     name={SUBSCRIPTION_SERVICES[reminder.icon]?.icon || 'card'} 
                     size={28} 
-                    color={SUBSCRIPTION_SERVICES[reminder.icon]?.color || '#6C5CE7'} 
+                    color={SUBSCRIPTION_SERVICES[reminder.icon]?.color || colors.primary} 
                   />
                 </View>
 
                 <View style={styles.reminderDetails}>
-                  <Text style={styles.reminderName}>{reminder.name}</Text>
+                  <Text style={[styles.reminderName, { color: colors.text }]}>{reminder.name}</Text>
                   <View style={styles.reminderInfo}>
-                    <Ionicons name="calendar-outline" size={14} color="#888" />
-                    <Text style={styles.reminderDate}>
+                    <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+                    <Text style={[styles.reminderDate, { color: colors.textSecondary }]}>
                       Her ayın {reminder.day}'i • {String(reminder.hour).padStart(2, '0')}:{String(reminder.minute).padStart(2, '0')}
                     </Text>
                   </View>
-                  <Text style={styles.nextPayment}>
+                  <Text style={[styles.nextPayment, { color: colors.primary }]}>
                     Sonraki: {getNextPaymentDate(reminder.day)}
                   </Text>
                 </View>
 
                 <View style={styles.reminderRight}>
-                  <Text style={styles.reminderAmount}>₺{reminder.amount.toFixed(2)}</Text>
+                  <Text style={[styles.reminderAmount, { color: colors.text }]}>₺{reminder.amount.toFixed(2)}</Text>
                   <TouchableOpacity 
                     onPress={() => deleteReminder(reminder.id, reminder.notificationId)}
                   >
@@ -323,18 +323,18 @@ export default function RemindersScreen() {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Yeni Hatırlatıcı</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Yeni Hatırlatıcı</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
               {/* Service Selection */}
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Popüler Abonelikler</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Popüler Abonelikler</Text>
                 <ScrollView 
                   horizontal 
                   showsHorizontalScrollIndicator={false}
@@ -345,6 +345,7 @@ export default function RemindersScreen() {
                       key={serviceName}
                       style={[
                         styles.serviceButton,
+                        { backgroundColor: colors.input },
                         selectedIcon === serviceName && {
                           backgroundColor: SUBSCRIPTION_SERVICES[serviceName].color,
                           borderColor: SUBSCRIPTION_SERVICES[serviceName].color,
@@ -359,7 +360,7 @@ export default function RemindersScreen() {
                       />
                       <Text style={[
                         styles.serviceButtonText,
-                        selectedIcon === serviceName && { color: '#fff' }
+                        { color: selectedIcon === serviceName ? '#fff' : colors.text }
                       ]}>
                         {serviceName}
                       </Text>
@@ -369,20 +370,22 @@ export default function RemindersScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Ödeme Adı</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Ödeme Adı</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                   placeholder="Örn: Spotify Premium"
+                  placeholderTextColor={colors.textSecondary}
                   value={name}
                   onChangeText={setName}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Tutar (₺)</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Tutar (₺)</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                   placeholder="0.00"
+                  placeholderTextColor={colors.textSecondary}
                   keyboardType="decimal-pad"
                   value={amount}
                   onChangeText={setAmount}
@@ -390,10 +393,11 @@ export default function RemindersScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Ödeme Günü (1-31)</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Ödeme Günü (1-31)</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                   placeholder="Örn: 15"
+                  placeholderTextColor={colors.textSecondary}
                   keyboardType="number-pad"
                   value={day}
                   onChangeText={setDay}
@@ -403,10 +407,11 @@ export default function RemindersScreen() {
 
               <View style={styles.timeRow}>
                 <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-                  <Text style={styles.inputLabel}>Saat (0-23)</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Saat (0-23)</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                     placeholder="12"
+                    placeholderTextColor={colors.textSecondary}
                     keyboardType="number-pad"
                     value={hour}
                     onChangeText={setHour}
@@ -415,10 +420,11 @@ export default function RemindersScreen() {
                 </View>
 
                 <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-                  <Text style={styles.inputLabel}>Dakika (0-59)</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Dakika (0-59)</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
                     placeholder="00"
+                    placeholderTextColor={colors.textSecondary}
                     keyboardType="number-pad"
                     value={minute}
                     onChangeText={setMinute}
@@ -427,14 +433,14 @@ export default function RemindersScreen() {
                 </View>
               </View>
 
-              <View style={styles.infoBox}>
-                <Ionicons name="information-circle" size={20} color="#6C5CE7" />
-                <Text style={styles.infoText}>
+              <View style={[styles.infoBox, { backgroundColor: colors.light }]}>
+                <Ionicons name="information-circle" size={20} color={colors.primary} />
+                <Text style={[styles.infoText, { color: colors.primary }]}>
                   Bildirim her ay {day || '?'}. gün saat {hour || '?'}:{minute || '?'}'da gelecek
                 </Text>
               </View>
 
-              <TouchableOpacity style={styles.saveButton} onPress={addReminder}>
+              <TouchableOpacity style={[styles.saveButton, { backgroundColor: colors.primary }]} onPress={addReminder}>
                 <Text style={styles.saveButtonText}>Hatırlatıcı Oluştur</Text>
               </TouchableOpacity>
             </ScrollView>

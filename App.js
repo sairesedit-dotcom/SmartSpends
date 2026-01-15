@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,14 +19,11 @@ function AppNavigator() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Üst Safe Area: Saat ve pil kısmını kart rengine boyar */}
-      <View style={{ height: insets.top, backgroundColor: colors.card }}>
-        <StatusBar 
-          barStyle={isDark ? "light-content" : "dark-content"} 
-          backgroundColor={colors.card} 
-          translucent
-        />
-      </View>
+      <StatusBar 
+        barStyle={isDark ? "light-content" : "dark-content"} 
+        backgroundColor={colors.card} 
+        translucent={false}
+      />
 
       <NavigationContainer>
         <Tab.Navigator
@@ -38,19 +35,16 @@ function AppNavigator() {
               backgroundColor: colors.card,
               borderTopWidth: 1,
               borderTopColor: colors.border,
-              // Alt bar yüksekliği ve çentikli telefon desteği
-              height: 60 + insets.bottom, 
-              paddingBottom: insets.bottom > 0 ? insets.bottom - 5 : 5, 
-              elevation: 8,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
+              height: 60,
+              paddingBottom: Platform.OS === 'android' ? 5 : insets.bottom,
+              paddingTop: 5,
+              elevation: 0,
+              position: 'relative',
             },
             tabBarLabelStyle: {
               fontSize: 10,
               fontWeight: '600',
-              marginTop: 0,
+              marginTop: 2,
               textTransform: 'none',
             },
             tabBarIndicatorStyle: {
@@ -111,9 +105,6 @@ function AppNavigator() {
           />
         </Tab.Navigator>
       </NavigationContainer>
-      
-      {/* Alt Safe Area: Navigasyon çubuğunun altındaki boşluğu doldurur */}
-      <View style={{ height: insets.bottom, backgroundColor: colors.card }} />
     </View>
   );
 }
